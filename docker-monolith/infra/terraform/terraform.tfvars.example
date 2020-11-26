@@ -1,0 +1,3 @@
+project = "your_project_id"
+disk_image = "ubuntu-1604-lts"
+counter = "2"
