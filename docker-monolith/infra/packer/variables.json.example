@@ -1,0 +1,6 @@
+{
+    "project_id": "you-project_id-name",
+    "source_image_family": "ubuntu-1604-lts",
+    "user_name": "appuser"
+}
+
