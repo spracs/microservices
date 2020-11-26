@@ -1,0 +1,5 @@
+plugin: gcp_compute
+projects:
+  - docker-296708
+auth_kind: serviceaccount
+service_account_file: /home/sdv/.ssh/ansible.json
