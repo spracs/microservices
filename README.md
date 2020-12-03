@@ -1,18 +1,18 @@
 # Docker
-docker run hello-world
-docker ps -a
-docker images
+docker run hello-world  # Скачивание образа их хаба, создание контейнера из образа и запуск контейнера
+docker ps -a            # Список всех контейнеров
+docker images           # Список образов
 docker ps -a --format "table {{.ID}}\t{{.Image}}\t{{.CreatedAt}}\t{{.Names}}"
-docker start <u_container_id>
-docker attach <u_container_id> / ENTER
-docker exec -it <u_container_id> bash
-docker commit <u_container_id> yourname/ubuntu-tmp-file
+docker start <u_container_id>   # Запуск созданного контейнера
+docker attach <u_container_id> / ENTER      # подсоединяет терминал к созданному контейнеру
+docker exec -it <u_container_id> bash       # Запускает новый процесс внутри контейнера (напр bash)
+docker commit <u_container_id> yourname/ubuntu-tmp-file     # Создает image из контейнера
 docker inspect <u_container_id> # OR <u_image_id>
 docker ps -q
-docker kill $(docker ps -q)
-docker system df
-docker rm $(docker ps -a -q)
-docker rmi $(docker images -q)
+docker kill $(docker ps -q)     # Остановить все запущенные контейнеры
+docker system df                # Отображает сколько дискового пространства занято образами, контейнерами и volume’ами
+docker rm $(docker ps -a -q)    # Удалить все контейнеры
+docker rmi $(docker images -q)  # Удалить все образы
 
 # Docker Machine
 gcloud init
@@ -28,7 +28,7 @@ docker-host
 docker-machine ls
 eval $(docker-machine env docker-host)
 eval $(docker-machine env -u)
-docker build -t reddit:latest .
+docker build -t reddit:latest .     # Создание образа из Dockerfile
 docker images -a
 docker run --name reddit -d --network=host reddit:latest
 
@@ -38,7 +38,7 @@ gcloud compute firewall-rules create reddit-app \
 --description="Allow PUMA connections" \
 --direction=INGRESS
 
-docker login
+docker login        # Авторизация в Docker HUB
 docker tag reddit:latest <your-login>/test-reddit:1.0
 docker push <your-login>/test-reddit:1.0
 docker run --name reddit -d -p 9292:9292 <your-login>/test-reddit:1.0
@@ -50,3 +50,18 @@ docker stop reddit && docker rm reddit                                  # ост
 docker run --name reddit --rm -it <your-login>/test-reddit:1.0 bash     # запустить контейнер без запуска приложения
 docker exec -it reddit bash 
 docker diff reddit
+
+# linter для Dockerfile
+docker run --rm -i hadolint/hadolint < Dockerfile
+
+# Build from Dockerfile
+docker build -t <your-dockerhub-login>/post:1.0 ./post-py
+...
+docker network create reddit    # Создание сети для приложения
+docker run -d --network=reddit --network-alias=post_db --network-alias=comment_db mongo:latest
+docker run -d --network=reddit --network-alias=post <your-dockerhub-login>/post:1.0
+docker run -d --network=reddit --network-alias=comment <your-dockerhub-login>/comment:1.0
+docker run -d --network=reddit -p 9292:9292 <your-dockerhub-login>/ui:1.0
+
+docker volume create reddit_db  # Создание хранилища Docker Volume
+docker run -d --network=reddit --network-alias=post_db --network-alias=comment_db -v reddit_db:/data/db mongo:latest
