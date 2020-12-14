@@ -65,3 +65,15 @@ docker run -d --network=reddit -p 9292:9292 <your-dockerhub-login>/ui:1.0
 
 docker volume create reddit_db  # Создание хранилища Docker Volume
 docker run -d --network=reddit --network-alias=post_db --network-alias=comment_db -v reddit_db:/data/db mongo:latest
+
+# Networks
+docker network create back_net --subnet=10.0.2.0/24
+docker network create front_net --subnet=10.0.1.0/24
+docker network connect front_net comment
+
+# Docker-compose
+docker-compose up -d
+docker-compose -p projectName up -d
+docker-compose ps
+docker-compose kill
+docker-compose -p test -f docker-compose.yml up -d
