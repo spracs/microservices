@@ -1,0 +1,22 @@
+---
+- name: Prepare gitlab-ci
+  hosts: gcp_ansible_gitlab
+  become: true
+  tasks:
+  - name: Create a directory if it does not exist
+    file:
+      path: /srv/gitlab/config
+      state: directory
+      mode: '0755'
+  - file:
+      path: /srv/gitlab/data
+      state: directory
+      mode: '0755'
+  - file:
+      path: /srv/gitlab/logs
+      state: directory
+      mode: '0755'
+  - name: Copy docker-compose.yml
+    template:
+      src: templates/docker-compose.yml.j2
+      dest: /srv/gitlab/docker-compose.yml
