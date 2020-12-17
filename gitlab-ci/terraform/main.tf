@@ -8,6 +8,7 @@ resource "google_compute_instance" "gitlab" {
   name         = "gitlab-ci"
   machine_type = var.machine_type
   zone         = var.zone
+  tags         = ["gitlab-ci"]
   labels = {
     "ansible" = "gitlab"
   }
@@ -33,4 +34,15 @@ resource "google_compute_instance" "gitlab" {
 
 resource "google_compute_address" "gitlab_ip" {
   name = "gitlab-ip"
+}
+
+resource "google_compute_firewall" "firewall_http" {
+  name    = "allow-http-default"
+  network = "default"
+  allow {
+    protocol = "tcp"
+    ports    = ["80"]
+  }
+  source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["gitlab-ci"]
 }
