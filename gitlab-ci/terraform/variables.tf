@@ -12,6 +12,11 @@ variable "zone" {
   default     = "europe-west1-b"
 }
 
+variable "docker_machine_type" {
+  description = "Machine type"
+  default     = "g1-small"
+}
+
 variable "machine_type" {
   description = "Machine type"
   default     = "n1-standard-1"
@@ -23,6 +28,10 @@ variable "public_key_path" {
 
 variable "privat_key_path" {
   description = "Path to the privat key used for ssh access"
+}
+
+variable "docker_disk_image" {
+  description = "Disk image"
 }
 
 variable "disk_image" {

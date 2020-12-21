@@ -32,6 +32,33 @@ resource "google_compute_instance" "gitlab" {
   }
 }
 
+resource "google_compute_instance" "docker" {
+  name         = "dev"
+  machine_type = var.docker_machine_type
+  zone         = var.zone
+  tags         = ["dev"]
+  labels = {
+    "ansible" = "dev"
+  }
+
+  boot_disk {
+    initialize_params {
+      image = var.docker_disk_image
+    }
+  }
+
+  network_interface {
+    network = "default"
+    access_config {
+    }
+  }
+
+  metadata = {
+    ssh-keys = "${var.username}:${file(var.public_key_path)}"
+  }
+}
+
+
 resource "google_compute_address" "gitlab_ip" {
   name = "gitlab-ip"
 }
@@ -44,5 +71,5 @@ resource "google_compute_firewall" "firewall_http" {
     ports    = ["80"]
   }
   source_ranges = ["0.0.0.0/0"]
-  target_tags   = ["gitlab-ci"]
+  target_tags   = ["gitlab-ci", "dev"]
 }

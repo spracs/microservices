@@ -77,3 +77,15 @@ docker-compose -p projectName up -d
 docker-compose ps
 docker-compose kill
 docker-compose -p test -f docker-compose.yml up -d
+
+# local gitlab
+git remote add gitlab http://34.78.106.137/homework/example.git
+git push gitlab gitlab-ci-1
+git tag 2.4.10
+git push gitlab gitlab-ci-1 --tags
+
+docker run -d --name gitlab-runner --restart always \
+-v /srv/gitlab-runner/config:/etc/gitlab-runner \
+-v /var/run/docker.sock:/var/run/docker.sock \
+gitlab/gitlab-runner:latest
+docker exec -it gitlab-runner gitlab-runner register --run-untagged --locked=false
