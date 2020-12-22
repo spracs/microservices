@@ -72,7 +72,8 @@ docker network create front_net --subnet=10.0.1.0/24
 docker network connect front_net comment
 
 # Docker-compose
-docker-compose up -d
+docker-compose up -d    # создание и запуск контейнеров из docker-compose.yml
+docker-compose down     # остановка и удаление контейнеров
 docker-compose -p projectName up -d
 docker-compose ps
 docker-compose kill
@@ -89,3 +90,6 @@ docker run -d --name gitlab-runner --restart always \
 -v /var/run/docker.sock:/var/run/docker.sock \
 gitlab/gitlab-runner:latest
 docker exec -it gitlab-runner gitlab-runner register --run-untagged --locked=false
+
+# monitoring
+for i in ui post-py comment; do cd src/$i; bash docker_build.sh; cd -; done
