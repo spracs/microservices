@@ -58,9 +58,21 @@ services:
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
     networks:
-      - front_net
       - back_net
-
+  mongo-exporter:
+    image: bitnami/mongodb-exporter:0.20.1
+    user: root
+    command:
+      - '--mongodb.uri=mongodb://post_db:27017'
+    networks:
+      - back_net
+  blackbox-exporter:
+    image: ${USERNAME}/blackbox
+    command:
+      - '--config.file=/config/blackbox.yml'
+    networks:
+      - back_net
+      - front_net
 volumes:
   post_db:
   prometheus_data:
