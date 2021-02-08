@@ -93,3 +93,5 @@ docker exec -it gitlab-runner gitlab-runner register --run-untagged --locked=fal
 
 # monitoring
 for i in ui post-py comment; do cd src/$i; bash docker_build.sh; cd -; done
+
+docker-compose -f docker-compose-monitoring.yml up -d
