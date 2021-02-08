@@ -95,3 +95,5 @@ docker exec -it gitlab-runner gitlab-runner register --run-untagged --locked=fal
 for i in ui post-py comment; do cd src/$i; bash docker_build.sh; cd -; done
 
 docker-compose -f docker-compose-monitoring.yml up -d
+gcloud compute firewall-rules create cadvisor-default --allow tcp:8080
+
