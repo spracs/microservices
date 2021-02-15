@@ -1,5 +1,6 @@
 version: '3.3'
 services:
+
   prometheus:
     image: ${USERNAME}/prometheus
     ports:
@@ -13,6 +14,7 @@ services:
     networks:
       - front_net
       - back_net
+
   node-exporter:
     image: prom/node-exporter:v0.15.2
     user: root
@@ -26,6 +28,7 @@ services:
       - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
     networks:
       - back_net
+
   mongo-exporter:
     image: bitnami/mongodb-exporter:0.20.1
     user: root
@@ -33,6 +36,7 @@ services:
       - '--mongodb.uri=mongodb://post_db:27017'
     networks:
       - back_net
+
   blackbox-exporter:
     image: ${USERNAME}/blackbox
     command:
@@ -40,6 +44,7 @@ services:
     networks:
       - back_net
       - front_net
+
   cadvisor:
     image: google/cadvisor:v0.29.0
     volumes:
@@ -51,10 +56,21 @@ services:
       - '8080:8080'
     networks:
       - back_net
-  grafana:
-    image: grafana/grafana:5.0.0
+
+  telegraf:
+    image: ${USERNAME}/telegraf
+    user: root
     volumes:
-      - grafana_data:/var/lib/grafana
+      - '/var/run/docker.sock:/var/run/docker.sock'
+    ports:
+      - '8094:8094'
+    networks:
+      - back_net
+
+  grafana:
+    image: ${USERNAME}/grafana
+#    volumes:
+#      - grafana_data:/var/lib/grafana
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=secret
@@ -64,6 +80,7 @@ services:
       - 3000:3000
     networks:
       - back_net
+
   alertmanager:
     image: ${USERNAME}/alertmanager
     command:
@@ -73,9 +90,27 @@ services:
     networks:
       - back_net
 
+  stackdriver-exporter:
+    image: prometheuscommunity/stackdriver-exporter:v0.11.0
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/tmp/credentials/app.json
+      - STACKDRIVER_EXPORTER_GOOGLE_PROJECT_ID=${PROJECT_ID}
+      - STACKDRIVER_EXPORTER_MONITORING_METRICS_TYPE_PREFIXES=compute.googleapis.com/instance/cpu,compute.googleapis.com/instance/disk
+    volumes:
+      - '/tmp/credentials/:/tmp/credentials/'
+    networks:
+      - front_net
+      - back_net
+
+  trickster:
+    image: ${USERNAME}/trickster
+    networks:
+      - back_net
+
 volumes:
   prometheus_data:
-  grafana_data:
+#  grafana_data:
+
 
 networks:
   front_net:
