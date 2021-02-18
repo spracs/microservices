@@ -1,5 +1,6 @@
 version: '3.3'
 services:
+
   post_db:
     image: mongo:${MONGO_VERSION}
     volumes:
@@ -9,14 +10,26 @@ services:
         aliases: 
           - post_db
           - comment_db
+
   ui:
     image: ${USERNAME}/ui:${UI_VERSION}
     ports:
       - 9292:${PORT_UI}/tcp
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: service.ui
     networks:
       - front_net
+
   post:
     image: ${USERNAME}/post:${POST_VERSION}
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: service.post
     networks:
       front_net:
         aliases: 
@@ -24,6 +37,7 @@ services:
       back_net:
         aliases: 
           - post
+
   comment:
     image: ${USERNAME}/comment:${COMMENT_VERSION}
     networks:
@@ -33,6 +47,8 @@ services:
       back_net:
         aliases: 
           - comment
+
+
 volumes:
   post_db:
 
