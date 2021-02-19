@@ -5,6 +5,8 @@ services:
     image: mongo:${MONGO_VERSION}
     volumes:
       - post_db:/data/db
+    environment:
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
     networks:
       back_net:
         aliases: 
@@ -15,6 +17,8 @@ services:
     image: ${USERNAME}/ui:${UI_VERSION}
     ports:
       - 9292:${PORT_UI}/tcp
+    environment:
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
     logging:
       driver: "fluentd"
       options:
@@ -25,6 +29,8 @@ services:
 
   post:
     image: ${USERNAME}/post:${POST_VERSION}
+    environment:
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
     logging:
       driver: "fluentd"
       options:
