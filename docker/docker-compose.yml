@@ -26,8 +26,6 @@ services:
         tag: service.ui
     networks:
       - front_net
-    depends_on:
-      - fluentd
 
   post:
     image: ${USERNAME}/post:${POST_VERSION}
@@ -45,8 +43,6 @@ services:
       back_net:
         aliases: 
           - post
-    depends_on:
-      - fluentd
 
   comment:
     image: ${USERNAME}/comment:${COMMENT_VERSION}
