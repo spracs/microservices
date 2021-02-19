@@ -3,7 +3,7 @@ version: '3'
 services:
 
   zipkin:
-    image: openzipkin/zipkin:2.22.0
+    image: openzipkin/zipkin:${ZIPKIN_VERSION}
     ports: 
       - "9411:9411"
     networks:
@@ -19,7 +19,7 @@ services:
       - back_net
 
   elasticsearch:
-    image: elasticsearch:7.4.0
+    image: elasticsearch:${ELASTIC_VERSION}
     environment:
       - discovery.type=single-node
     expose:
@@ -30,7 +30,7 @@ services:
       - back_net
 
   kibana:
-    image: kibana:7.4.0
+    image: kibana:${KIBANA_VERSION}
     ports:
       - "5601:5601"
     networks:
