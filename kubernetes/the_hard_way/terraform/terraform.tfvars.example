@@ -1,0 +1,5 @@
+project = "your_project_id"
+disk_image = "ubuntu-2004-lts"
+counter = "2"
+public_key_path = "~/.ssh/appuser.pub"
+username        = "appuser"

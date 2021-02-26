@@ -1,0 +1,50 @@
+---
+- name: Prepare etcd cluster
+  hosts: gcp_ansible_controller
+  become: true
+  tasks:
+  - name: Download and Install
+    get_url:
+      url: https://github.com/etcd-io/etcd/releases/download/v3.4.10/etcd-v3.4.10-linux-amd64.tar.gz
+      dest: /tmp/etcd.tar.gz
+  - unarchive:
+      remote_src: yes
+      src: /tmp/etcd.tar.gz
+      dest: /tmp
+  - copy:
+      remote_src: yes
+      src: /tmp/etcd-v3.4.10-linux-amd64/etcd
+      dest: /usr/local/bin/
+      mode: +x
+  - copy:
+      remote_src: yes
+      src: /tmp/etcd-v3.4.10-linux-amd64/etcdctl
+      dest: /usr/local/bin/
+      mode: +x
+
+  - name: Configure the etcd Server
+    file:
+      path: /etc/etcd
+      state: directory
+  - file:
+      path: /var/lib/etcd
+      state: directory
+      mode: '0700'
+  - copy:
+      src: ../files/controllers/ca.pem
+      dest: /etc/etcd/ca.pem
+  - copy:
+      src: ../files/controllers/kubernetes-key.pem
+      dest: /etc/etcd/kubernetes-key.pem
+  - copy:
+      src: ../files/controllers/kubernetes.pem
+      dest: /etc/etcd/kubernetes.pem
+  - template:
+      src: ../templates/etcd.service.j2
+      dest: /etc/systemd/system/etcd.service
+    notify: reload etcd
+  - systemd: name=etcd enabled=yes
+
+  handlers:
+  - name: reload etcd
+    systemd: name=etcd state=restarted daemon_reload=yes

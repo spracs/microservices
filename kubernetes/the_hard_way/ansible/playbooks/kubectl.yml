@@ -1,0 +1,99 @@
+---
+- name: Prepare Kubernetes Control  cluster
+  hosts: gcp_ansible_controller
+  become: true
+  tasks:
+  - name: Create dir
+    file:
+      path: /etc/kubernetes/config
+      state: directory
+  - name: Download and Install
+    get_url:
+      url: https://storage.googleapis.com/kubernetes-release/release/v1.18.6/bin/linux/amd64/kube-apiserver
+      dest: /usr/local/bin/kube-apiserver
+      mode: +x
+  - get_url:
+      url: https://storage.googleapis.com/kubernetes-release/release/v1.18.6/bin/linux/amd64/kube-controller-manager
+      dest: /usr/local/bin/kube-controller-manager
+      mode: +x
+  - get_url:
+      url: https://storage.googleapis.com/kubernetes-release/release/v1.18.6/bin/linux/amd64/kube-scheduler
+      dest: /usr/local/bin/kube-scheduler
+      mode: +x
+  - get_url:
+      url: https://storage.googleapis.com/kubernetes-release/release/v1.18.6/bin/linux/amd64/kubectl
+      dest: /usr/local/bin/kubectl
+      mode: +x
+
+  - name: Configure the Kubernetes API Server
+    file:
+      path: /var/lib/kubernetes
+      state: directory
+  - copy:
+      src: ../files/controllers/ca.pem
+      dest: /var/lib/kubernetes/ca.pem
+  - copy:
+      src: ../files/controllers/ca-key.pem
+      dest: /var/lib/kubernetes/ca-key.pem
+  - copy:
+      src: ../files/controllers/kubernetes-key.pem
+      dest: /var/lib/kubernetes/kubernetes-key.pem
+  - copy:
+      src: ../files/controllers/kubernetes.pem
+      dest: /var/lib/kubernetes/kubernetes.pem
+  - copy:
+      src: ../files/controllers/service-account-key.pem
+      dest: /var/lib/kubernetes/service-account-key.pem
+  - copy:
+      src: ../files/controllers/service-account.pem
+      dest: /var/lib/kubernetes/service-account.pem
+  - copy:
+      src: ../files/controllers/encryption-config.yaml
+      dest: /var/lib/kubernetes/encryption-config.yaml
+  - template:
+      src: ../templates/kube-apiserver.service.j2
+      dest: /etc/systemd/system/kube-apiserver.service
+    notify: reload kube-apiserver
+  - systemd: name=kube-apiserver state=restarted enabled=yes
+
+  - name: Configure the Kubernetes Controller Manager
+    copy:
+      src: ../files/controllers/kube-controller-manager.kubeconfig
+      dest: /var/lib/kubernetes/kube-controller-manager.kubeconfig
+  - template:
+      src: ../templates/kube-controller-manager.service.j2
+      dest: /etc/systemd/system/kube-controller-manager.service
+    notify: reload kube-controller-manager
+  - systemd: name=kube-controller-manager state=restarted enabled=yes
+
+  - name: Configure the Kubernetes Scheduler
+    copy:
+      src: ../files/controllers/kube-scheduler.kubeconfig
+      dest: /var/lib/kubernetes/kube-scheduler.kubeconfig
+  - template:
+      src: ../templates/kube-scheduler.yaml.j2
+      dest: /etc/kubernetes/config/kube-scheduler.yaml
+  - template:
+      src: ../templates/kube-scheduler.service.j2
+      dest: /etc/systemd/system/kube-scheduler.service
+    notify: reload kube-scheduler
+  - systemd: name=kube-scheduler state=restarted enabled=yes
+
+  - name: Enable HTTP Health Checks
+    apt: "name=nginx state=present update_cache=yes"
+  - template:
+      src: ../templates/kubernetes.default.svc.cluster.local.j2
+      dest: /etc/nginx/sites-available/kubernetes.default.svc.cluster.local
+  - file:
+      src: /etc/nginx/sites-available/kubernetes.default.svc.cluster.local
+      dest: /etc/nginx/sites-enabled/kubernetes.default.svc.cluster.local
+      state: link
+  - systemd: name=nginx state=restarted enabled=yes
+
+  handlers:
+  - name: reload kube-apiserver
+    systemd: name=kube-apiserver state=restarted daemon_reload=yes
+  - name: reload kube-controller-manager
+    systemd: name=kube-controller-manager state=restarted daemon_reload=yes
+  - name: reload kube-scheduler
+    systemd: name=kube-scheduler state=restarted daemon_reload=yes

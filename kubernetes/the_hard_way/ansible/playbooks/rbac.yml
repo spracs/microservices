@@ -1,0 +1,16 @@
+---
+- name: RBAC for Kubelet Authorization
+  hosts: gcp_controller_0
+  become: true
+  tasks:
+  - copy:
+      src: ../files/controllers/admin.kubeconfig
+      dest: /tmp/admin.kubeconfig
+  - copy:
+      src: ../files/rbac1.conf
+      dest: /tmp/rbac1.conf
+  - copy:
+      src: ../files/rbac2.conf
+      dest: /tmp/rbac2.conf
+  - command: kubectl apply --kubeconfig /tmp/admin.kubeconfig -f /tmp/rbac1.conf
+  - command: kubectl apply --kubeconfig /tmp/admin.kubeconfig -f /tmp/rbac2.conf

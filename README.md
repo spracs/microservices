@@ -101,3 +101,43 @@ gcloud compute firewall-rules create cadvisor-default --allow tcp:8080
 docker-machine create --driver google --google-machine-image https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts --google-machine-type n1-standard-1 --google-zone europe-west1-b --google-open-port 5601/tcp --google-open-port 9292/tcp --google-open-port 9411/tcp logging
 eval $(docker-machine env logging)
 docker-machine ip logging
+
+# kubernates
+# https://github.com/kelseyhightower/kubernetes-the-hard-way
+
+# verify the ability to encrypt secret data at rest.
+kubectl create secret generic kubernetes-the-hard-way \
+  --from-literal="mykey=mydata"
+gcloud compute ssh controller-0 \
+  --command "sudo ETCDCTL_API=3 etcdctl get \
+  --endpoints=https://127.0.0.1:2379 \
+  --cacert=/etc/etcd/ca.pem \
+  --cert=/etc/etcd/kubernetes.pem \
+  --key=/etc/etcd/kubernetes-key.pem\
+  /registry/secrets/default/kubernetes-the-hard-way | hexdump -C"
+
+# Deployments
+kubectl create deployment nginx --image=nginx
+kubectl get pods -l app=nginx
+
+# Port Forwarding
+POD_NAME=$(kubectl get pods -l app=nginx -o jsonpath="{.items[0].metadata.name}")
+kubectl port-forward $POD_NAME 8080:80
+
+# Logs
+kubectl logs $POD_NAME
+
+# Exec
+kubectl exec -ti $POD_NAME -- nginx -v
+
+# Services
+kubectl expose deployment nginx --port 80 --type NodePort
+NODE_PORT=$(kubectl get svc nginx \
+  --output=jsonpath='{range .spec.ports[0]}{.nodePort}')
+gcloud compute firewall-rules create kubernetes-the-hard-way-allow-nginx-service \
+  --allow=tcp:${NODE_PORT} \
+  --network kubernetes-the-hard-way
+EXTERNAL_IP=$(gcloud compute instances describe worker-0 \
+  --format 'value(networkInterfaces[0].accessConfigs[0].natIP)')
+curl -I http://${EXTERNAL_IP}:${NODE_PORT}
+

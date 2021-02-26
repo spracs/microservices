@@ -1,0 +1,10 @@
+---
+- name: Provisioning a Kubernetes Worker Node
+  hosts: gcp_ansible_worker
+  become: true
+  tasks:
+  - command: >-
+      curl -s -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/attributes/pod-cidr
+    register: command_output_full
+  - set_fact: cidr_worker={{ command_output_full.stdout }}
+  - debug: var=cidr_worker
