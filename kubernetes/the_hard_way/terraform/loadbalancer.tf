@@ -1,12 +1,12 @@
 resource "google_compute_http_health_check" "kub_health" {
   name         = "kubernetes"
   request_path = "/healthz"
-  host = "kubernetes.default.svc.cluster.local"
+  host         = "kubernetes.default.svc.cluster.local"
 }
 
 resource "google_compute_firewall" "firewall_health_check" {
-  name        = "kubernetes-the-hard-way-allow-health-check"
-  network     = google_compute_network.vpc_network.id
+  name    = "kubernetes-the-hard-way-allow-health-check"
+  network = google_compute_network.vpc_network.id
   allow {
     protocol = "tcp"
   }
@@ -21,8 +21,8 @@ resource "google_compute_forwarding_rule" "kube_forw_rule" {
 }
 
 resource "google_compute_target_pool" "kube_target" {
-  name = "kubernetes-target-pool"
-  instances   = google_compute_instance.kub-controller.*.self_link
+  name      = "kubernetes-target-pool"
+  instances = google_compute_instance.kub-controller.*.self_link
 
   health_checks = [
     google_compute_http_health_check.kub_health.id,
