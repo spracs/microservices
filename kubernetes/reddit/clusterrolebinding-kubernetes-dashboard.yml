@@ -1,0 +1,15 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+# Добавление кластерной роли cluster-admin к сервис-аккаунту kubernetes-dashboard:kubernetes-dashboard
+# Для дашборда: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
+kind: ClusterRoleBinding
+metadata:
+  name: kubernetes-dashboard-all-privileges
+subjects:
+- kind: ServiceAccount
+  namespace: kubernetes-dashboard
+  name: kubernetes-dashboard
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io

@@ -7,9 +7,11 @@ metadata:
     app: reddit
     component: ui
 spec:
+# NodePort видится снаружи, может быть в диапозоне 30000-32767
   type: NodePort
   ports:
   - port: 9292
+#   nodePort: 32092
     protocol: TCP
     targetPort: 9292
   selector:

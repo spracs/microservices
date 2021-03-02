@@ -156,6 +156,8 @@ minikube service list -n dev
 
 # GKE
 kubectl get nodes -o wide
+kubectl describe service ui -n dev | grep NodePort
 
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
+kubectl proxy
 kubectl get secret $(kubectl get sa kubernetes-dashboard -o jsonpath='{.secrets[0].name}' -n kubernetes-dashboard) -n kubernetes-dashboard -o jsonpath='{.data.token}' | base64 --decode
-

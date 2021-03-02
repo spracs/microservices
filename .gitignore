@@ -1,3 +1,9 @@
 .env
 credentials/
 .imported_roles
+*.tfstate
+*.tfstate.*.backup
+*.tfstate.backup
+*.tfvars
+.terraform/
+*.hcl
