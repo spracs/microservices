@@ -105,8 +105,8 @@ docker-machine ip logging
 # kubernates
 # https://github.com/kelseyhightower/kubernetes-the-hard-way
 
-# verify the ability to encrypt secret data at rest.
-kubectl create secret generic kubernetes-the-hard-way \
+
+kubectl create secret generic kubernetes-the-hard-way \                         # verify the ability to encrypt secret data at rest.
   --from-literal="mykey=mydata"
 gcloud compute ssh controller-0 \
   --command "sudo ETCDCTL_API=3 etcdctl get \
@@ -116,22 +116,16 @@ gcloud compute ssh controller-0 \
   --key=/etc/etcd/kubernetes-key.pem\
   /registry/secrets/default/kubernetes-the-hard-way | hexdump -C"
 
-# Deployments
-kubectl create deployment nginx --image=nginx
+kubectl create deployment nginx --image=nginx                                           # Deployments
 kubectl get pods -l app=nginx
 
-# Port Forwarding
-POD_NAME=$(kubectl get pods -l app=nginx -o jsonpath="{.items[0].metadata.name}")
+POD_NAME=$(kubectl get pods -l app=nginx -o jsonpath="{.items[0].metadata.name}")     # Port Forwarding
 kubectl port-forward $POD_NAME 8080:80
 
-# Logs
-kubectl logs $POD_NAME
+kubectl logs $POD_NAME                                                                  # Logs
+kubectl exec -ti $POD_NAME -- nginx -v                                                   # Exec
 
-# Exec
-kubectl exec -ti $POD_NAME -- nginx -v
-
-# Services
-kubectl expose deployment nginx --port 80 --type NodePort
+kubectl expose deployment nginx --port 80 --type NodePort                               # Services
 NODE_PORT=$(kubectl get svc nginx \
   --output=jsonpath='{range .spec.ports[0]}{.nodePort}')
 gcloud compute firewall-rules create kubernetes-the-hard-way-allow-nginx-service \
@@ -140,4 +134,28 @@ gcloud compute firewall-rules create kubernetes-the-hard-way-allow-nginx-service
 EXTERNAL_IP=$(gcloud compute instances describe worker-0 \
   --format 'value(networkInterfaces[0].accessConfigs[0].natIP)')
 curl -I http://${EXTERNAL_IP}:${NODE_PORT}
+
+kubectl config current-context      # Текущий контекст
+kubectl config get-contexts         # Список всех контекстов
+kubectl apply -f ui-deployment.yml  # развертывание из одного YML
+kubectl get deployment
+kubectl apply -f ./kubernetes/reddit  # Развертывание из папки с YML
+
+kubectl get pods --selector component=ui
+kubectl port-forward <pod-name> 8080:9292 # Проброс локального порта
+
+kubectl describe pod <pod-name>           # Информация о состоянии
+
+kubectl delete -f name.yml # OR kubectl delete service <service-name>
+
+# Minikube
+minikube start
+minikube service list
+minikube addons list
+minikube service list -n dev
+
+# GKE
+kubectl get nodes -o wide
+
+kubectl get secret $(kubectl get sa kubernetes-dashboard -o jsonpath='{.secrets[0].name}' -n kubernetes-dashboard) -n kubernetes-dashboard -o jsonpath='{.data.token}' | base64 --decode
 
