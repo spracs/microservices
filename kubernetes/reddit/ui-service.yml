@@ -9,6 +9,7 @@ metadata:
 spec:
 # NodePort видится снаружи, может быть в диапозоне 30000-32767
   type: NodePort
+# type: LoadBalancer
   ports:
   - port: 9292
 #   nodePort: 32092

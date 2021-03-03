@@ -161,3 +161,14 @@ kubectl describe service ui -n dev | grep NodePort
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
 kubectl proxy
 kubectl get secret $(kubectl get sa kubernetes-dashboard -o jsonpath='{.secrets[0].name}' -n kubernetes-dashboard) -n kubernetes-dashboard -o jsonpath='{.data.token}' | base64 --decode
+
+kubectl scale deployment --replicas 0 -n kube-system kube-dnsautoscaler
+kubectl scale deployment --replicas 0 -n kube-system kube-dns
+kubectl scale deployment --replicas 1 -n kube-system kube-dnsautoscaler
+
+kubectl get ingress -n dev
+
+# TLS
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=34.117.104.89"
+kubectl create secret tls ui-ingress --key tls.key --cert tls.crt -n dev
+kubectl describe secret ui-ingress -n dev
