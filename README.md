@@ -172,3 +172,13 @@ kubectl get ingress -n dev
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=34.117.104.89"
 kubectl create secret tls ui-ingress --key tls.key --cert tls.crt -n dev
 kubectl describe secret ui-ingress -n dev
+
+# HELM
+helm install some-name path-to-Charm/
+helm ls
+helm dep update
+
+helm repo add stable https://charts.helm.sh/stable    # adding repository
+helm search repo mongodb
+
+helm upgrade some-name path-to-Charm/

@@ -7,3 +7,4 @@ credentials/
 *.tfvars
 .terraform/
 *.hcl
+*.tgz
