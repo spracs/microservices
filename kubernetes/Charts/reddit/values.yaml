@@ -18,3 +18,7 @@ ui:
     tag: latest
   service:
     externalPort: 9292
+
+mongodb:
+  auth:
+    enabled: false
