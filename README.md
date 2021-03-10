@@ -185,4 +185,6 @@ helm upgrade some-name path-to-Charm/
 
 # HELM GitLab
 helm repo add gitlab https://charts.gitlab.io
+helm repo add bitnami https://charts.bitnami.com/bitnami
 helm fetch gitlab/gitlab-omnibus --version 0.1.37 --untar
+helm ls -n review
