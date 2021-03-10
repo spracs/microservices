@@ -18,6 +18,7 @@ resource "google_container_cluster" "primary" {
   # node pool and immediately delete it.
   remove_default_node_pool = true
   initial_node_count       = 1
+  enable_legacy_abac      = true
   addons_config {
     network_policy_config {disabled = false}
   }
@@ -31,10 +32,10 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
   name       = "my-node-pool"
   location = var.zone
   cluster    = google_container_cluster.primary.name
-  node_count = 2
+  node_count = 1
 
   node_config {
-    machine_type = "g1-small"
+    machine_type = "n2-standard-2"
 
     # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
 #    service_account = google_service_account.default.email

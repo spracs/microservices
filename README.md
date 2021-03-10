@@ -182,3 +182,7 @@ helm repo add stable https://charts.helm.sh/stable    # adding repository
 helm search repo mongodb
 
 helm upgrade some-name path-to-Charm/
+
+# HELM GitLab
+helm repo add gitlab https://charts.gitlab.io
+helm fetch gitlab/gitlab-omnibus --version 0.1.37 --untar
