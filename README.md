@@ -188,3 +188,11 @@ helm repo add gitlab https://charts.gitlab.io
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm fetch gitlab/gitlab-omnibus --version 0.1.37 --untar
 helm ls -n review
+
+# GitLab last version
+helm repo add gitlab https://charts.gitlab.io/
+helm upgrade --install gitlab gitlab/gitlab   --set global.hosts.domain=34-76-194-172.sslip.io   --set global.hosts.externalIP=34.76.194.172   --set certmanager-issuer.email=me@example.com --set gitlab-runner.runners.privileged=true --set global.kas.enabled=true --set global.hosts.https=false --set global.ingress.tls.enabled=false --version 4.9.3
+Пароль root:
+kubectl get secret gitlab-gitlab-initial-root-password -ojsonpath='{.data.password}' | base64 --decode ; echo
+
+helm upgrade --install gitlab gitlab/gitlab --version 4.9.3 -f values.yaml
