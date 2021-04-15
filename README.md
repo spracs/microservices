@@ -196,3 +196,21 @@ helm upgrade --install gitlab gitlab/gitlab   --set global.hosts.domain=34-76-19
 kubectl get secret gitlab-gitlab-initial-root-password -ojsonpath='{.data.password}' | base64 --decode ; echo
 
 helm upgrade --install gitlab gitlab/gitlab --version 4.9.3 -f values.yaml
+
+
+# Kubernetes monitoring
+helm repo add nginx-stable https://helm.nginx.com/stable
+helm nginx install stable/nginx-ingress
+
+helm upgrade --install grafana stable/grafana --set "adminPassword=admin" \
+--set "service.type=NodePort" \
+--set "ingress.enabled=true" \
+--set "ingress.hosts={reddit-grafana}"
+
+# Kubernetes logging
+helm upgrade --install kibana stable/kibana \
+--set "ingress.enabled=true" \
+--set "ingress.hosts={reddit-kibana}" \
+--set "env.ELASTICSEARCH_URL=http://elasticsearch-logging:9200" \
+--version 0.1.1
+
